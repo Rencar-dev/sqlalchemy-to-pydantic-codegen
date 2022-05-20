@@ -1,4 +1,6 @@
 import os
+from typing import Callable, Optional
+
 from pydantic_sqlalchemy.extract_from_sqlalchemy import ExtractedModel, GeneratedImportReference, ExtractedField
 from pydantic_sqlalchemy.models_collector import ModelsCollector, CollectedFile
 from pydantic_sqlalchemy.module_path_typ import (
@@ -117,6 +119,7 @@ def collected_file_to_pydantic_file(
 def write_pydantic_models(
         collector: ModelsCollector,
         base_path: str = '__generated',
+        postprocessor: Optional[Callable[[str], str]] = None
 ):
     for module_path, collected_file in collector.collected_files.items():
         tp_write_path = ensure_file_module_path(
@@ -124,10 +127,11 @@ def write_pydantic_models(
             base_path=base_path,
         )
         with open(tp_write_path, 'w') as f:
-            f.write(
-                collected_file_to_pydantic_file(
-                    collected_file=collected_file,
-                    base_module_path=base_path,
+            rendered = collected_file_to_pydantic_file(
+                collected_file=collected_file,
+                base_module_path=base_path,
 
-                ).render(indent_level=0, indent_chars="    ")
-            )
+            ).render(indent_level=0, indent_chars="    ")
+            if postprocessor is not None:
+                rendered = postprocessor(rendered)
+            f.write(rendered)
