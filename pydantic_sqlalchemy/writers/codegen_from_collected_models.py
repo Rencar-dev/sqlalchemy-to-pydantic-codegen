@@ -1,12 +1,9 @@
-import os
 from typing import Callable, Optional
 
 from pydantic_sqlalchemy.extract_from_sqlalchemy import ExtractedModel, GeneratedImportReference, ExtractedField
 from pydantic_sqlalchemy.models_collector import ModelsCollector, CollectedFile
 from pydantic_sqlalchemy.module_path_typ import (
     get_mangled_module_path_as_name,
-    ModulePathType,
-    get_child_modules_path, to_fs_path,
 )
 from pydantic_sqlalchemy.utils.trim_indent import TrimIndent
 from sqlalchemy import (
@@ -14,31 +11,7 @@ from sqlalchemy import (
     ColumnDefault,
 )
 
-
-def ensure_file_module_path(
-        module_path: ModulePathType,
-        base_path: str = '__generated',
-):
-    if not os.path.exists(base_path):
-        os.mkdir(base_path)
-    child_module_paths = get_child_modules_path(module_path)
-    for child_module_path in child_module_paths:
-        to_generate_folder = to_fs_path(
-            module_path=child_module_path,
-            base_path=base_path,
-        )
-        to_generate_file = os.path.join(to_generate_folder, '__init__.py')
-        if not os.path.exists(to_generate_folder):
-            os.mkdir(to_generate_folder)
-        if not os.path.exists(to_generate_file):
-            with open(to_generate_file, 'w') as f:
-                f.write('')
-    # TODO not a good practice...
-    last = child_module_paths[-1]
-    return os.path.join(
-        to_fs_path(module_path, base_path=base_path),
-        '__init__.py',
-    )
+from pydantic_sqlalchemy.writers.common import ensure_file_module_path
 
 
 def stringify_field_type(extracted_field: ExtractedField):
