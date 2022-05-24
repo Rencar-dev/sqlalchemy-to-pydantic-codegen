@@ -1,13 +1,14 @@
-from setuptools import setup
+from setuptools import setup, find_packages
 
 setup(
-    name='sqlalchemy-to-pydantic',
+    name='pydantic_sqlalchemy',
     version='',
-    packages=[
-        'to_generate_sample',
-        'pydantic_sqlalchemy', 'pydantic_sqlalchemy.utils',
-        'pydantic_sqlalchemy.stub_imports_before_codegen',
-    ],
+    packages=find_packages(
+        include=[
+            'pydantic_sqlalchemy',
+            'pydantic_sqlalchemy.*',
+        ],
+    ),
     url='',
     license='',
     author='devdoomari-rencar',
